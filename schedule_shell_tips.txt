@@ -1,0 +1,24 @@
+##=[ 2013--08--14--星期三  08:08:06 ]=##
+
+ *  在某人处调度shell脚本注意事项：
+一、程序中固定的目录约定
+    # shell文件放置目录： /dwsys/mis/ksh
+    # sqlldr的控制文件目录： /dwsys/mis/ctl/local
+    # spl文件的放置目录： /dwsys/mis/proc/local      (spool里路径为 /dwsrc/ftpsql/dm )
+    # 中转/临时文件的放置目录： /dwsrc/wrktmp/local  (每日09:00前自动清空)
+
+    # 业务取数的FTP： ftpuser14/da4u2t@21.144.203.109
+    # 取业务文件的FTP： ftpuser73/dete77@21.144.203.109/yk
+
+    # 业务放文件FTP： ftpuser79/fr56cb@21.144.203.109
+
+二、程序/文件内容约定
+    # shell里的返回状态总为 0 。
+    # spool出的csv文件如需在shell中读取，则应使用 ||','||
+      的方式拼接select子句的各字段。并对字段做如下处理：
+          TRIM(REPLACE(REPLACE(字段名, ',', ''), CHR(41377), ''))
+    # 在shell里如需对文件名超过100个字符的文件打包，则可用如下命令代替tar:
+          原先： tar -cvf aaa.tar  *
+          替换： pax -w -f aaa.cpio -x cpio *
+      对这样的文件压缩得到的 aaa.cpio.gz
+      在windows上不能为winrar所识别，建议用好压。      

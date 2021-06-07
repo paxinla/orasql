@@ -1,0 +1,38 @@
+    SELECT TABLE_NAME ,  (BLOCKS *8192 / 1024/1024 ) - (NUM_ROWS*AVG_ROW_LEN/1024/1024)
+    "Data lower than HWM in MB"   FROM  DBA_TABLES WHERE  UPPER(owner) =UPPER('&OWNER') order by 2 desc;
+
+
+
+
+    set serveroutput on
+    DECLARE
+    TOTAL_BLOCKS number;
+    TOTAL_BYTES number;
+    UNUSED_BLOCKS number;
+    UNUSED_BYTES number;
+    LAST_USED_EXTENT_FILE_ID number;
+    LAST_USED_EXTENT_BLOCK_ID number;
+    LAST_USED_BLOCK number;
+    BEGIN
+    dbms_space.unused_space('SYS',
+    'MACLEAN_TEST1',
+    'TABLE',
+    TOTAL_BLOCKS,
+    TOTAL_BYTES,
+    UNUSED_BLOCKS,
+    UNUSED_BYTES,
+    LAST_USED_EXTENT_FILE_ID,
+    LAST_USED_EXTENT_BLOCK_ID,
+    LAST_USED_BLOCK);
+
+    dbms_output.put_line('OBJECT_NAME = MACLEAN_TEST1');
+    dbms_output.put_line('-----------------------------------');
+    dbms_output.put_line('TOTAL BLOCKS = ' || TOTAL_BLOCKS);
+    dbms_output.put_line('TOTAL SIZE(KByte) = ' ||
+    TOTAL_BYTES / 1024);
+    dbms_output.put_line('UNUSED BLOCKS = ' || UNUSED_BLOCKS);
+    dbms_output.put_line('UNUSED SIZE(KByte) = ' ||
+    UNUSED_BYTES / 1024);
+    END;
+    /
+

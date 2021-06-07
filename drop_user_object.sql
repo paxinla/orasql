@@ -1,0 +1,62 @@
+DECLARE
+
+  V_OBJECT_TYPE    VARCHAR2(19);
+  V_OBJECT_NAME    VARCHAR2(128);
+  V_TAB_NAME       VARCHAR2(200);
+  V_STATUS         VARCHAR2(7);
+  SQLSTR           VARCHAR2(4000);
+  
+  CURSOR ALL_USR_FK
+  IS SELECT TABLE_NAME
+          , CONSTRAINT_NAME
+       FROM USER_CONSTRAINTS
+      WHERE CONSTRAINT_TYPE = 'R'
+  ;
+
+  CURSOR ALL_USR_OBJ 
+  IS SELECT OBJECT_TYPE
+          , OBJECT_NAME
+          , STATUS
+       FROM USER_OBJECTS
+      WHERE OBJECT_TYPE IN ( 'TABLE', 'PROCEDURE', 'FUNCTION'
+                           , 'VIEW', 'SEQUENCE', 'TYPE'
+                           , 'PACKAGE', 'SYNONYM'
+                           )
+   ORDER BY OBJECT_TYPE, OBJECT_NAME, STATUS
+  ;
+  
+BEGIN
+  
+  DBMS_OUTPUT.PUT_LINE('开始删除用户 '||USER||' 的数据库对象 ... ...');
+  
+  OPEN ALL_USR_FK;
+  LOOP
+    FETCH ALL_USR_FK
+     INTO V_TAB_NAME
+        , V_OBJECT_NAME
+    ;
+  EXIT WHEN ALL_USR_FK%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('删除表 '||V_TAB_NAME
+                       ||' 上的外键 '||V_OBJECT_NAME);
+    EXECUTE IMMEDIATE 'ALTER TABLE '||V_TAB_NAME
+                   || ' DROP CONSTRAINT '||V_OBJECT_NAME;
+  END LOOP;
+  CLOSE ALL_USR_FK;
+  
+  
+  OPEN ALL_USR_OBJ;
+  LOOP
+    FETCH ALL_USR_OBJ
+     INTO V_OBJECT_TYPE
+        , V_OBJECT_NAME
+        , V_STATUS
+    ;
+  EXIT WHEN ALL_USR_OBJ%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('删除 '||V_STATUS
+                       ||' 的 '||V_OBJECT_TYPE
+                       ||' : '||V_OBJECT_NAME);
+    
+    EXECUTE IMMEDIATE 'DROP '||V_OBJECT_TYPE||' '||V_OBJECT_NAME;
+  END LOOP;
+  CLOSE ALL_USR_OBJ;
+END;

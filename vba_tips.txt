@@ -1,0 +1,3 @@
+ '.SaveAs Filename:=p & nm & ".xls", FileFormat:=xlExcel8 '03格式（XLS）
+	  .SaveAs Filename:=p & nm & ".xlsx", FileFormat:=xlOpenXMLWorkbook '07格式（XLSX）
+
